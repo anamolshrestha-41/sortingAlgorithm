@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgorithmVisualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Algorithm Visualizer</h1>
+    <div class="controls">
+        <select id="algorithms">
+            <option value="bubbleSort">Bubble Sort</option>
+            <option value="selectionSort">Selection Sort</option>
+            <option value="insertionSort">Insertion Sorting</option>
+        </select>
+        <button onclick="generateArray()">Generate Array</button>
+        <button onclick="startSorting()">Start Sorting</button>
+        <div id="forSpeed">
+            <label for="speed">Speed</label>
+            <input type="range" min="100" max="1000" value="500" id="speed">
+        </div>
+    </div>
+
+    <div class="array-container" id="array"></div>
+    <p id="status"></p>
+    <script src="script.js"></script>
+</body>
+</html>
