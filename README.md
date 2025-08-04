@@ -162,9 +162,6 @@ sortingAlgorithm/
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## 📜 License
-
-This project is open source and available under the [MIT License](LICENSE).
 
 ## 🎉 Acknowledgments
 
@@ -177,9 +174,3 @@ This project is open source and available under the [MIT License](LICENSE).
 **Made with ❤️ for learning and visualization**
 
 *Experience sorting algorithms like never before!* 🚀
-
-## 📸 Screenshots
-
-![Sorting Visualizer](https://via.placeholder.com/800x400/1A1A40/ecf0f1?text=🎮+Sorting+Algorithm+Visualizer)
-
-*Interactive sorting with 3D effects, game modes, and real-time analytics*
