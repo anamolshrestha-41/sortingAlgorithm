@@ -5,25 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlgorithmVisualizer</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-    <h1>Algorithm Visualizer</h1>
+    <div class="header">
+        <h1>Algorithm Visualizer</h1>
+        <button id="darkModeToggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+        </button>
+    </div>
     <div class="controls">
-        <select id="algorithms">
+        <select id="algorithms" onchange="showAlgorithmInfo()">
             <option value="bubbleSort">Bubble Sort</option>
             <option value="selectionSort">Selection Sort</option>
             <option value="insertionSort">Insertion Sorting</option>
+            <option value="quickSort">Quick Sort</option>
+            <option value="mergeSort">Merge Sort</option>
         </select>
+        <div id="algorithmInfo" class="algorithm-info">
+            <h3>Algorithm Information</h3>
+            <p id="algoDescription">Select an algorithm to see its description.</p>
+            <div class="complexity">
+                <span>Time Complexity: <span id="timeComplexity">-</span></span>
+                <span>Space Complexity: <span id="spaceComplexity">-</span></span>
+            </div>
+        </div>
+        <div id="forSize">
+            <label for="arraySize">Array Size</label>
+            <input type="range" min="5" max="30" value="20" id="arraySize">
+            <span id="sizeValue">20</span>
+        </div>
         <button onclick="generateArray()">Generate Array</button>
         <button onclick="startSorting()">Start Sorting</button>
+        <button onclick="toggleRaceMode()">🏁 Race Mode</button>
+        <button onclick="toggleCustomInput()">✏️ Custom Array</button>
+        <button onclick="exportResults()">📸 Export</button>
+        <button onclick="toggleGameMode()">🎮 Game Mode</button>
+        <button onclick="toggleVisualizationMode()">🌈 3D Mode</button>
         <div id="forSpeed">
             <label for="speed">Speed</label>
             <input type="range" min="100" max="1000" value="500" id="speed">
         </div>
     </div>
 
+    <div class="stats-container">
+        <div class="stat-item">
+            <span class="stat-label">Comparisons:</span>
+            <span id="comparisons">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Swaps:</span>
+            <span id="swaps">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Time:</span>
+            <span id="timer">0.0s</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Progress:</span>
+            <span id="progressPercent">0%</span>
+        </div>
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="sortProgress">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+    
+    <!-- Custom Array Input Modal -->
+    <div id="customInputModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleCustomInput()">&times;</span>
+            <h3>Enter Custom Array</h3>
+            <input type="text" id="customArrayInput" placeholder="Enter numbers separated by commas (e.g., 5,3,8,1,9)">
+            <button onclick="applyCustomArray()">Apply Array</button>
+        </div>
+    </div>
+    
+    <!-- Race Mode Container -->
+    <div id="raceContainer" class="race-container" style="display: none;">
+        <div class="race-track">
+            <div class="race-lane">
+                <h4>Bubble Sort</h4>
+                <div class="race-array" id="raceArray1"></div>
+                <div class="race-stats">Time: <span id="raceTime1">0s</span> | Swaps: <span id="raceSwaps1">0</span></div>
+            </div>
+            <div class="race-lane">
+                <h4>Quick Sort</h4>
+                <div class="race-array" id="raceArray2"></div>
+                <div class="race-stats">Time: <span id="raceTime2">0s</span> | Swaps: <span id="raceSwaps2">0</span></div>
+            </div>
+        </div>
+    </div>
+    
     <div class="array-container" id="array"></div>
     <p id="status"></p>
+    
+    <!-- Audio elements -->
+    <audio id="successSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="swapSound" preload="auto" volume="0.3"></audio>
+    <audio id="compareSound" preload="auto" volume="0.2"></audio>
+    
+    <!-- Game Mode Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleGameMode()">&times;</span>
+            <h3>🎮 Sorting Challenge</h3>
+            <p>Predict which algorithm will be faster!</p>
+            <div class="game-options">
+                <button onclick="startChallenge('bubble')">Bet on Bubble Sort</button>
+                <button onclick="startChallenge('quick')">Bet on Quick Sort</button>
+            </div>
+            <div id="gameScore">Score: <span id="score">0</span> | Streak: <span id="streak">0</span></div>
+        </div>
+    </div>
+    
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleLeaderboard()">&times;</span>
+            <h3>🏆 Leaderboard</h3>
+            <div id="leaderboardList"></div>
+            <input type="text" id="playerName" placeholder="Enter your name">
+            <button onclick="saveScore()">Save Score</button>
+        </div>
+    </div>
+    
+    <!-- Keyboard shortcuts help -->
+    <div id="shortcutsHelp" class="shortcuts-help">
+        <div class="shortcuts-content">
+            <h4>⌨️ Keyboard Shortcuts</h4>
+            <div class="shortcut-item"><kbd>G</kbd> Generate Array</div>
+            <div class="shortcut-item"><kbd>S</kbd> Start Sorting</div>
+            <div class="shortcut-item"><kbd>R</kbd> Race Mode</div>
+            <div class="shortcut-item"><kbd>C</kbd> Custom Array</div>
+            <div class="shortcut-item"><kbd>E</kbd> Export</div>
+            <div class="shortcut-item"><kbd>G</kbd> Game Mode</div>
+            <div class="shortcut-item"><kbd>3</kbd> 3D Mode</div>
+            <div class="shortcut-item"><kbd>L</kbd> Leaderboard</div>
+            <div class="shortcut-item"><kbd>?</kbd> Toggle Help</div>
+        </div>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
